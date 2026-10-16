@@ -554,6 +554,7 @@
                     .forEach(k => setField(k, (cfg[k] || []).join(', ')));
                 setField('music_volume', cfg.music_volume ?? '');
                 setToggle('music_autoplay', cfg.music_autoplay);
+                setToggle('music_local', cfg.music_local);
 
                 setToggle('afkmode', cfg.afkmode);
                 setToggle('nitro_sniper', cfg.nitro_sniper);
@@ -1497,7 +1498,7 @@ async function refreshMusicTile() {
     }
     tile.classList.remove('idle');
     title.textContent = state.title || 'Unknown track';
-    sub.textContent = state.guild ? `in ${state.guild}` : 'via ytqueue';
+    sub.textContent = state.local ? 'on this PC's speakers' : state.guild ? `in ${state.guild}` : 'via ytqueue';
     vc.textContent = state.channel ? `vc #${state.channel}` : '';
     const pct = state.duration ? Math.min(100, (state.elapsed / state.duration) * 100) : 0;
     document.getElementById('ov-music-bar').style.width = pct + '%';

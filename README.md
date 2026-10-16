@@ -55,6 +55,13 @@ Music commands (`mplay`, `mskip`, `mstop`, `mqueue`, `mnowplaying`, `mloop`, `ma
 
 Default volume and autoplay can be set under **Settings → Music**.
 
+## Music on your PC's speakers
+
+You don't need a voice call to listen. Run `<prefix>moutput speakers` (or turn on **Play On This PC** under **Settings → Music**) and `mplay` plays straight to this computer's speakers. All the other music commands work the same way.
+
+- `<prefix>mdevice` lists your outputs. `<prefix>mdevice <number>` (or part of a name, e.g. `mdevice headphones`) picks one, and `mdevice default` follows the Windows default
+- `<prefix>moutput vc` switches back to voice channels
+
 ## Music on an alt
 
 Discord only allows one voice connection per account, so repent can't play music to you on the same account you're listening with. To use it as a music bot:

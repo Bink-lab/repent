@@ -411,6 +411,19 @@ class API:
         }
 
     def get_music_state(self):
+        if _local_player is not None and _local_player.core.queue.current:
+            queue = _local_player.core.queue
+            track = queue.current
+            return {
+                "title": track.title,
+                "duration": int(track.duration) if track.duration else None,
+                "elapsed": int(queue.elapsed() or 0),
+                "queued": len(queue.tracks),
+                "loop": bool(queue.loop_enabled),
+                "guild": None,
+                "channel": None,
+                "local": True,
+            }
         for guild_id, player in list(_music_players.items()):
             queue = player.core.queue
             track = queue.current
