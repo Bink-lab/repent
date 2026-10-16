@@ -12,6 +12,7 @@ GPUtil==1.4.0
 gTTS==2.5.4
 httpx==0.28.1
 notify-py==0.3.43
+numpy==2.5.4
 pet-pet-gif==1.0.2
 Pillow==11.2.1
 protobuf==7.36.1
@@ -22,6 +23,7 @@ pystyle==2.9
 pywebview==6.2.1
 PyNaCl==1.5.0
 requests==2.32.3
+sounddevice==0.5.6
 websockets==15.0.1
 youtube-search==2.2.0
 https://github.com/KeiraOMG0/ytqueue/archive/refs/heads/master.zip

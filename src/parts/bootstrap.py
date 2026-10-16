@@ -1718,6 +1718,7 @@ SETUP_FIELDS = [
     ("music_whitelist", "idlist", "Music Whitelist", "User IDs (comma separated) allowed to use music commands through this account, e.g. your main when repent runs on an alt.", True),
     ("music_volume", "volume", "Default Volume", "Starting volume from 0 to 200. Leave blank for 100.", True),
     ("music_autoplay", "bool", "Autoplay By Default", "Queue similar songs when the queue runs out.", True),
+    ("music_local", "bool", "Play On This PC", "Play music on this computer's speakers instead of a voice channel.", True),
     ("selfthrottle", "bool", "Anti-Automod Throttle", "Pause commands briefly if you send too fast, to avoid tripping Discord's automod.", False),
     ("autovcleave", "bool", "Auto VC Leave", "Leave a voice channel once you're the only one left.", False),
     ("autobackup", "bool", "Daily Server Backups", "Back up roles and channels of servers you manage once a day.", False),
@@ -1743,7 +1744,7 @@ SETUP_GROUPS = [
         "dmlogger_webhook_url", "error_webhook_url", "nitro_webhook_url",
         "giveaway_webhook_url", "pinglogger_webhook_url", "relationship_webhook_url",
     ]),
-    ("Music", "Optional - only matters if you use the music commands.", ["music_whitelist", "music_volume", "music_autoplay"]),
+    ("Music", "Optional - only matters if you use the music commands.", ["music_whitelist", "music_volume", "music_autoplay", "music_local"]),
     ("Automation", "Things repent can handle in the background.", ["selfthrottle", "autovcleave", "autobackup"]),
     ("Appearance", "Optional customization.", ["etheme", "theme"]),
 ]
