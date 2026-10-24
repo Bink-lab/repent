@@ -216,7 +216,7 @@ async def retardpresence():
 
     async def RetardPresenceSearcher(item_name):
         item_name = item_name + ".json"
-        for dirpath, dirnames, filenames in os.walk('Data/rpc_configs'):
+        for dirpath, dirnames, filenames in os.walk('data/rpc_configs'):
             if item_name in dirnames:
                 return os.path.join(dirpath, item_name), "folder"
             if item_name in filenames:
@@ -1200,7 +1200,7 @@ async def on_message(message):
                         </style>
                         """
                         content = await process_messagee(message)
-                        file_path = f'Data/Logs/{message.channel.recipient.name}.html'
+                        file_path = f'data/logs/{message.channel.recipient.name}.html'
                         async with aiofiles.open(file_path, 'a', encoding='utf-8') as file:
                             if os.path.getsize(file_path) == 0:
                                 await file.write("<html>")
@@ -1336,10 +1336,10 @@ async def on_message(message):
                 }
                 </style>
                 """
-                if not os.path.exists(f'Data/Logs/{message.guild.name}~Message_Logs'):
-                    os.mkdir(f'Data/Logs/{message.guild.name}~Message_Logs')
+                if not os.path.exists(f'data/logs/{message.guild.name}~Message_Logs'):
+                    os.mkdir(f'data/logs/{message.guild.name}~Message_Logs')
                 content = await process_messagee(message)
-                file_path = f'Data/Logs/{message.guild.name}~Message_Logs/{message.channel.name}.html'
+                file_path = f'data/logs/{message.guild.name}~Message_Logs/{message.channel.name}.html'
                 async with aiofiles.open(file_path, 'a', encoding='utf-8') as file:
                     if os.path.getsize(file_path) == 0:
                         await file.write("<html>")

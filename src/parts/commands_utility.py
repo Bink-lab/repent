@@ -39,14 +39,14 @@ async def downloadallpfp(ctx):
     guild1 = ctx.guild.name
     guild1 = guild1.replace(' ', '-')
     users = await scrape(ctx.guild.id, ctx.guild.member_count)
-    if not os.path.exists(f'data/media/photos/{guild1}-pfps'):
-        os.mkdir(f'data/media/photos/{guild1}-pfps')
+    if not os.path.exists(f'data/media/Photos/{guild1}-pfps'):
+        os.mkdir(f'data/media/Photos/{guild1}-pfps')
     else:
-        shutil.rmtree(f'data/media/photos/{guild1}-pfps')
-        os.mkdir(f'data/media/photos/{guild1}-pfps')
+        shutil.rmtree(f'data/media/Photos/{guild1}-pfps')
+        os.mkdir(f'data/media/Photos/{guild1}-pfps')
     try:
         for user in users:
-            with open(f'data/media/photos/{guild1}-pfps/{user.id}.png', 'wb') as f:
+            with open(f'data/media/Photos/{guild1}-pfps/{user.id}.png', 'wb') as f:
                 r = (await arequesters.get(user.avatar, stream=True))
                 for block in r.iter_content(1024):
                     if not block:
@@ -61,7 +61,7 @@ async def getallpfp(ctx):
     guild1 = ctx.guild.name
     guild1 = guild1.replace(' ', '-')
     users = await scrape(ctx.guild.id, ctx.guild.member_count)
-    delly = open(f"data/media/photos/{guild1}-pfps.txt","w")
+    delly = open(f"data/media/Photos/{guild1}-pfps.txt","w")
     try:
         for member in users:
             delly.write(f'{member.display_name}: {member.avatar}\n')
@@ -200,11 +200,11 @@ async def invislink(ctx, link2):
 
 @Repent.command(description=f"Cycles between custom statuses to disable it just run the command again. \nUsage: {config_get('prefix')}cyclestatus <status 1> <status 2>\n\nThis is also used as a two way toggle, to turn this off, do the command without any args.", help="utility")
 async def cyclestatus(ctx, status1=None, status2=None):    
-    with open('data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'cyclestatus' not in settings_data:
         settings_data['cyclestatus'] = False
-        with open('data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
     if status1 is None or status2 is None:
         if setting_get('cyclestatus') is True:
@@ -310,7 +310,7 @@ async def changeprefix(ctx, prefix):
 
 @Repent.command(aliases=["constheme", "ctheme"], description=f"Changes the theme of the bot. \nUsage: {config_get('prefix')}changetheme [theme]", help="utility")
 async def changetheme(ctx, file=None):    
-    theme_dir = "data//Themes//"
+    theme_dir = "data/themes//"
     matched_files = glob.glob(f"{theme_dir}{file}*")
     try:
         if file == None:
@@ -340,7 +340,7 @@ async def changetheme(ctx, file=None):
 
 @Repent.command(aliases=["lst", "lsthemes"], description=f"Lists the themes in the themes folder. \nUsage: {config_get('prefix')}listthemes", help="utility")
 async def listthemes(ctx):
-    directory = 'data//Themes'
+    directory = 'data/themes'
     try:
         files = os.listdir(directory)
         files = [file for file in files if os.path.isfile(os.path.join(directory, file))]
@@ -357,7 +357,7 @@ async def listthemes(ctx):
 
 @Repent.command(aliases=["lsc", "lscustomcmds"], description=f"Lists the custom commands in the customcmds folder. \nUsage: {config_get('prefix')}listcustomcmds", help="utility")
 async def listcustomcmds(ctx):
-    directory = 'data//CustomCmds'
+    directory = 'data/customcmds'
     try:
         files = os.listdir(directory)
         py_files = [file for file in files if file.endswith('.py') and os.path.isfile(os.path.join(directory, file))]
@@ -391,7 +391,7 @@ async def etheme(ctx, *, theme_name: str):
 
 @Repent.command(aliases=["lset", "listethems"], description=f"Lists the embed themes in the ethemes folder. \nUsage: {config_get('prefix')}listethemes", help="utility")
 async def listethemes(ctx):
-    directory = 'data/Settings/Configs/Ethemes'
+    directory = 'data/settings/configs/Ethemes'
     try:
         files = os.listdir(directory)
         theme_files = [file for file in files if os.path.isfile(os.path.join(directory, file))]
@@ -1221,7 +1221,7 @@ async def delalias(ctx, alias):
 
 @Repent.command(description=f"Lists all custom aliases. \nUsage: {config_get('prefix')}listaliases", help="utility")
 async def listaliases(ctx):
-    with open("data//Settings//Configs//aliases.json", "r") as file:
+    with open("data/settings/configs/aliases.json", "r") as file:
         aliases = json.load(file)
     
     if not aliases:
@@ -1408,10 +1408,10 @@ async def backupgifs(ctx):
     settings = settings.FromString(decoded_data)
     favorite_gifs_data = settings.favorite_gifs
     favorite_gifs_dict = MessageToDict(favorite_gifs_data)
-    with open('data/Backups/favorite_gifs.txt', 'w') as f:
+    with open('data/backups/favorite_gifs.txt', 'w') as f:
         json.dump(favorite_gifs_dict, f, indent=4)
     heading = "Gifs Successfully Backed-Up"
-    body = "Favourite gifs have been backed up to 'data/Backups/favorite_gifs.txt'"
+    body = "Favourite gifs have been backed up to 'data/backups/favorite_gifs.txt'"
     cmdname = "backupgifs"
     await panelmaker(ctx,heading,body,cmdname)
 
@@ -1457,7 +1457,7 @@ async def importgifs(ctx):
         return settings_dict
     settings = await getsettings()
     frecency = FrecencyUserSettings()
-    with open('data/Backups/favorite_gifs.txt', 'r') as file:
+    with open('data/backups/favorite_gifs.txt', 'r') as file:
         content = json.load(file)
     content = {"favoriteGifs": content}
     updated_settings = add_missing_gifs(settings, content)
@@ -1688,7 +1688,7 @@ async def alttoken(ctx, account_token):
 async def changetoken(ctx, token_number: int):
     token_key = f"Token{token_number}"
 
-    with open('data//Settings//Configs//tokens.json', 'r') as file:
+    with open('data/settings/configs/Tokens.json', 'r') as file:
         tokens = json.load(file)
 
     with open(CONFIG_FILE, 'r') as file:
@@ -1701,7 +1701,7 @@ async def changetoken(ctx, token_number: int):
 
     new_token, tokens[token_key] = tokens[token_key], current_token
 
-    with open('data//Settings//Configs//tokens.json', 'w') as file:
+    with open('data/settings/configs/Tokens.json', 'w') as file:
         json.dump(tokens, file, indent=4)
 
     config['token'] = new_token

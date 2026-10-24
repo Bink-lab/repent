@@ -214,21 +214,21 @@ class API:
             pass
 
     def get_file_names(self):
-        directory = os.path.join(os.getcwd(), 'Data', 'Themes')
+        directory = os.path.join(os.getcwd(), 'data', 'themes')
         try:
             return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         except FileNotFoundError:
             return []
 
     def get_etheme_names(self):
-        directory = os.path.join(os.getcwd(), 'Data', 'Settings', 'Configs', 'Ethemes')
+        directory = os.path.join(os.getcwd(), 'data', 'settings', 'configs', 'Ethemes')
         try:
             return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
         except FileNotFoundError:
             return []
 
     def get_etheme_names(self):
-        directory = os.path.join(os.getcwd(), 'Data', 'Settings', 'Configs', 'Ethemes')
+        directory = os.path.join(os.getcwd(), 'data', 'settings', 'configs', 'Ethemes')
         try:
             files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
             return [os.path.splitext(os.path.basename(file))[0] 
@@ -237,7 +237,7 @@ class API:
             return []
 
     def getetheme(self, name):
-        directory = os.path.join(os.getcwd(), 'Data', 'Settings', 'Configs', 'Ethemes')
+        directory = os.path.join(os.getcwd(), 'data', 'settings', 'configs', 'Ethemes')
         try:
             files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
             for file in files:
@@ -247,7 +247,7 @@ class API:
         except FileNotFoundError:
             return None
     def loadetheme(self, theme_name):
-        theme_path = f"Data/Settings/Configs/Ethemes/{safe_file_name(theme_name)}.json"
+        theme_path = f"data/settings/configs/Ethemes/{safe_file_name(theme_name)}.json"
         with open(theme_path, "r") as theme_file:
             return json.load(theme_file)
 
@@ -273,13 +273,13 @@ class API:
     def initialethemers(self):
         if config_get('etheme') == "":
             config_edit('etheme', 'Default')
-        theme_path = f"Data/Settings/Configs/Ethemes/{config_get('etheme')}.json"
+        theme_path = f"data/settings/configs/Ethemes/{config_get('etheme')}.json"
         with open(theme_path, "r") as theme_file:
             jsoni = json.load(theme_file)
         return jsoni
 
     def setethemers(self, etheme):
-        theme_path = f"Data/Settings/Configs/Ethemes/{safe_file_name(etheme)}.json"
+        theme_path = f"data/settings/configs/Ethemes/{safe_file_name(etheme)}.json"
 
         try:
             if not os.path.exists(theme_path):
@@ -309,7 +309,7 @@ class API:
         return None
 
     def saveethemers(self, name, color, image, title_url, cmd_url, author_name="", author_url="", thumbnail="", footer_text="", show_timestamp=False):
-        theme_path = f"Data/Settings/Configs/Ethemes/{safe_file_name(name)}.json"
+        theme_path = f"data/settings/configs/Ethemes/{safe_file_name(name)}.json"
         data = {
             "color": color,
             "image": image,
@@ -326,7 +326,7 @@ class API:
 
     def createnewetheme(self, name):
         name = filesafe(name)
-        theme_path = f"Data/Settings/Configs/Ethemes/{name}.json"
+        theme_path = f"data/settings/configs/Ethemes/{name}.json"
         data = {
             "color": "#FFFFFF",
             "image": "",
@@ -356,7 +356,7 @@ class API:
     def clear_guild_theme_override(self, guild_id):
         set_guild_etheme_name(guild_id, None)
     def get_rpc_config(self, name):
-        config_path = f"Data/rpc_configs/{safe_file_name(name)}.json"
+        config_path = f"data/rpc_configs/{safe_file_name(name)}.json"
         try:
             with open(config_path, "r") as f:
                 return json.load(f)
@@ -366,7 +366,7 @@ class API:
             return None
 
     def save_rpc_config(self, name, data_json):
-        config_path = f"Data/rpc_configs/{safe_file_name(name)}.json"
+        config_path = f"data/rpc_configs/{safe_file_name(name)}.json"
         try:
             data = json.loads(data_json)
             with open(config_path, "w") as f:

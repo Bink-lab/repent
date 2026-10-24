@@ -260,23 +260,23 @@ async def soundspam(ctx):
 
 @Repent.command(description=f"Bans any user who pings you in the server they pinged you from. \nUsage: {config_get('prefix')}userpingban", help="utility")
 async def userpingban(ctx, user: discord.User):
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'userpingban' not in settings_data:
         settings_data['userpingban'] = []
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
 
     if user.id in settings_data['userpingban']:
         settings_data['userpingban'].remove(user.id)  
-        with open('Data/Settings/Configs/Settings.json', 'w') as file: 
+        with open('data/settings/configs/settings.json', 'w') as file: 
             json.dump(settings_data, file, indent=4)
         heading = f"User Ping Ban"
         body = f"{user.name} removed from ping ban from all possible servers."
         cmdname = "userpingban"
     else:
         settings_data['userpingban'].append(user.id)
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:  
+        with open('data/settings/configs/settings.json', 'w') as file:  
             json.dump(settings_data, file, indent=4)
         heading = f"User Ping Ban"
         body = f"{user.name} added to ping ban for all possible servers."
@@ -285,23 +285,23 @@ async def userpingban(ctx, user: discord.User):
 
 @Repent.command(description=f"Bans a user who pings you in the server this commands was used in. \nUsage: {config_get('prefix')}serverpingban", help="utility")
 async def serverpingban(ctx):
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'serverpingban' not in settings_data:
         settings_data['serverpingban'] = []
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
     if ctx.guild.me.guild_permissions.ban_members:
         if ctx.guild.id in settings_data['serverpingban']:
             settings_data['serverpingban'].remove(ctx.guild.id)  
-            with open('Data/Settings/Configs/Settings.json', 'w') as file: 
+            with open('data/settings/configs/settings.json', 'w') as file: 
                 json.dump(settings_data, file, indent=4)
             heading = f"Server Ping Ban"
             body = f"{ctx.guild.name} removed from ping ban list."
             cmdname = "serverpingban"
         else:
             settings_data['serverpingban'].append(ctx.guild.id)
-            with open('Data/Settings/Configs/Settings.json', 'w') as file:  
+            with open('data/settings/configs/settings.json', 'w') as file:  
                 json.dump(settings_data, file, indent=4)
             heading = f"Server Ping Ban"
             body = f"{ctx.guild.name} added to ping ban list."
@@ -314,23 +314,23 @@ async def serverpingban(ctx):
 
 @Repent.command(description=f"Kicks any user who pings you in the server this commands was used in. \nUsage: {config_get('prefix')}serverpingkick", help="utility")
 async def serverpingkick(ctx):
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'serverpingkick' not in settings_data:
         settings_data['serverpingkick'] = []
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
     if ctx.guild.me.guild_permissions.ban_members:
         if ctx.guild.id in settings_data['serverpingkick']:
             settings_data['serverpingkick'].remove(ctx.guild.id)  
-            with open('Data/Settings/Configs/Settings.json', 'w') as file: 
+            with open('data/settings/configs/settings.json', 'w') as file: 
                 json.dump(settings_data, file, indent=4)
             heading = f"Server Ping Kick"
             body = f"{ctx.guild.name} removed from ping kick list."
             cmdname = "serverpingkick"
         else:
             settings_data['serverpingkick'].append(ctx.guild.id)
-            with open('Data/Settings/Configs/Settings.json', 'w') as file:  
+            with open('data/settings/configs/settings.json', 'w') as file:  
                 json.dump(settings_data, file, indent=4)
             heading = f"Server Ping Kick"
             body = f"{ctx.guild.name} added to ping kick list."
@@ -343,23 +343,23 @@ async def serverpingkick(ctx):
 
 @Repent.command(description=f"Kicks a user who pings you in the server they pinged you from. \nUsage: {config_get('prefix')}userpingkick", help="utility")
 async def userpingkick(ctx, user: discord.User):
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'userpingkick' not in settings_data:
         settings_data['userpingkick'] = []
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
 
     if user.id in settings_data['userpingkick']:
         settings_data['userpingkick'].remove(user.id)  
-        with open('Data/Settings/Configs/Settings.json', 'w') as file: 
+        with open('data/settings/configs/settings.json', 'w') as file: 
             json.dump(settings_data, file, indent=4)
         heading = f"User Ping Kick"
         body = f"{user.name} removed from ping kick from all possible servers."
         cmdname = "userpingkick"
     else:
         settings_data['userpingkick'].append(user.id)
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:  
+        with open('data/settings/configs/settings.json', 'w') as file:  
             json.dump(settings_data, file, indent=4)
         heading = f"User Ping Kick"
         body = f"{user.name} added to ping kick for all possible servers."
@@ -376,23 +376,23 @@ async def logchannel(ctx, id=None):
             return
     channel_id = int(id) if id else ctx.channel.id
     channel = Repent.get_channel(channel_id)   
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'msglogids' not in settings_data:
         settings_data['msglogids'] = []
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
 
     if channel_id in settings_data['msglogids']:
         settings_data['msglogids'].remove(channel_id)  
-        with open('Data/Settings/Configs/Settings.json', 'w') as file: 
+        with open('data/settings/configs/settings.json', 'w') as file: 
             json.dump(settings_data, file, indent=4)
         heading = f"Channel Log"
         body = f"Stopped logging {channel.name}"
         cmdname = "logchannel"
     else:
         settings_data['msglogids'].append(channel_id)
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:  
+        with open('data/settings/configs/settings.json', 'w') as file:  
             json.dump(settings_data, file, indent=4)
         heading = f"Channel Log"
         body = f"Now logging {channel.name}"

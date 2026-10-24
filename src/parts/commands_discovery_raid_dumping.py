@@ -546,7 +546,7 @@ async def emojidump(ctx, server_id: int=None):
         if not server:
             await ctx.send("Server not found.")
             return
-        dump_dir = os.path.join(os.getcwd(), 'Data', 'Dumps', 'Dumped Emojis', filesafe(server.name))
+        dump_dir = os.path.join(os.getcwd(), 'data', 'dumps', 'Dumped Emojis', filesafe(server.name))
         os.makedirs(dump_dir, exist_ok=True)
         async with aiohttp.ClientSession() as session:
             tasks = []
@@ -607,7 +607,7 @@ async def chatdump(ctx, channel_id: int = None):
         target_name = channel.name 
     
     if target_name is not None:
-        dump_dir = os.path.join(os.getcwd(), 'Data', 'Dumps', 'Dumped Chats')
+        dump_dir = os.path.join(os.getcwd(), 'data', 'dumps', 'Dumped Chats')
         os.makedirs(dump_dir, exist_ok=True)        
 
         chat_style = """

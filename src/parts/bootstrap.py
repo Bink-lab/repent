@@ -1041,7 +1041,7 @@ def clear_console():
     api.cls()
 
 def load_rpc_config():
-    with open("data/settings/configs/RPC.json", "r") as rpc_file:
+    with open("data/rpc_configs/rpc.json", "r") as rpc_file:
         rpc_config = json.load(rpc_file)
     return rpc_config
 
@@ -1066,7 +1066,7 @@ async def spotify_access():
         return False
     
 def load_Webhooks_config():
-    with open("data/settings/configs/webhooks.json", "r") as Webhooks_file:
+    with open("data/settings/configs/Webhooks.json", "r") as Webhooks_file:
         Webhooks_config = json.load(Webhooks_file)
     return Webhooks_config
 
@@ -1104,7 +1104,7 @@ def list_guild_etheme_overrides():
 
 def load_Embed_config(guild_id=None):
     mainconfiggers = CONFIG_FILE
-    deftheme = "data/settings/configs/ethemes/Default.json"
+    deftheme = "data/settings/configs/Ethemes/Default.json"
     theme_name = get_guild_etheme_name(guild_id)
     try:
         if not theme_name:
@@ -1113,7 +1113,7 @@ def load_Embed_config(guild_id=None):
                 theme_name = main_config.get("etheme")
 
         if theme_name and theme_name.strip():
-            theme_path = f"data/settings/configs/ethemes/{theme_name}.json"
+            theme_path = f"data/settings/configs/Ethemes/{theme_name}.json"
             if os.path.isfile(theme_path):
                 with open(theme_path, "r") as theme_file:
                     return json.load(theme_file)
@@ -1672,7 +1672,6 @@ def downloadshit():
         ('assets/fonts/Boogaloo-Regular.ttf', 'https://assets.idlesys.xyz/assets/c38febf770bec2b8e30ea6bc1ddb39c9b0ce0e8625d94ceeafbe3af1c7096d9d.ttf'),
         ('assets/fonts/CascadiaMono-VariableFont_wght.ttf', 'https://assets.idlesys.xyz/assets/85c0d075ccb628edef86d48fa9ad9ce0ff69b93e83123ea42461ea62151244ce.ttf'),
         icon_file,
-        ('Data', None),
         ('data/rpc_configs', None),
         ('data/themes', None),
         ('data/settings', None),

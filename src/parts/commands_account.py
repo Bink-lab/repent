@@ -18,12 +18,12 @@ async def stealprofile(ctx, user: discord.User):
     banner_color = response['user']['banner_color']
     bio = response['user_profile']['bio']
     pronouns = response['user_profile']['pronouns']
-    folder_path = f'Data/Profiles/{user.name.lower()}'
+    folder_path = f'data/profiles/{user.name.lower()}'
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    avatar_filename = f'Data/Profiles/{user.name.lower()}/avatar.gif'
-    banner_filename = f'Data/Profiles/{user.name.lower()}/banner.gif'
+    avatar_filename = f'data/profiles/{user.name.lower()}/avatar.gif'
+    banner_filename = f'data/profiles/{user.name.lower()}/banner.gif'
 
     if avatar:
         avatar_response = (await arequesters.get(avatar))
@@ -44,7 +44,7 @@ async def stealprofile(ctx, user: discord.User):
         "profile_effect": None,
         "pronouns": pronouns
     }
-    with open(f'Data/Profiles/{user.name}.profile', 'w') as file:
+    with open(f'data/profiles/{user.name}.profile', 'w') as file:
         json.dump(profile_data, file, indent=4)
     heading = "Profile Stolen"
     body = f"User profile '{user.name}' has been successfully stolen."
@@ -61,12 +61,12 @@ async def exportprofile(ctx, *, name: str):
     avatar = ctx.message.author.avatar
     banner_url = f"https://cdn.discordapp.com/banners/{ctx.message.author.id}/{data['banner']}.gif?size=480" if data["banner"] else None
     
-    folder_path = f'Data/Profiles/{name.lower()}'
+    folder_path = f'data/profiles/{name.lower()}'
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
 
-    avatar_filename = f'Data/Profiles/{name.lower()}/avatar.gif'
-    banner_filename = f'Data/Profiles/{name.lower()}/banner.gif'
+    avatar_filename = f'data/profiles/{name.lower()}/avatar.gif'
+    banner_filename = f'data/profiles/{name.lower()}/banner.gif'
 
     if avatar:
         avatar_response = (await arequesters.get(avatar))
@@ -96,7 +96,7 @@ async def exportprofile(ctx, *, name: str):
       theme_colors = data2["user_profile"]["theme_colors"]
       profile_data.update({"theme_colors": theme_colors, "profile_effect": profile_effect})
 
-    with open(f'Data/Profiles/{name.lower()}.profile', 'w') as file:
+    with open(f'data/profiles/{name.lower()}.profile', 'w') as file:
         json.dump(profile_data, file, indent=4)
     heading = "Profile Exported"
     body = f"User profile called '{name}' has been successfully exported."
@@ -116,7 +116,7 @@ async def importprofile(ctx, *, name: str):
         return None
 
     try:
-        with open(f"Data/Profiles/{name.lower()}.profile", "r") as file:
+        with open(f"data/profiles/{name.lower()}.profile", "r") as file:
             data = json.load(file)
     except FileNotFoundError:
         print(f"{Fore.LIGHTRED_EX}[ERROR] {Fore.WHITE}Profile '{name.lower()}' does not exist")
@@ -142,8 +142,8 @@ async def importprofile(ctx, *, name: str):
                 return None
         return None
 
-    avatar_filename = f'Data/Profiles/{name.lower()}/avatar.gif'
-    banner_filename = f'Data/Profiles/{name.lower()}/banner.gif'
+    avatar_filename = f'data/profiles/{name.lower()}/avatar.gif'
+    banner_filename = f'data/profiles/{name.lower()}/banner.gif'
 
     avatar = await picconvert(avatar_filename) if os.path.exists(avatar_filename) else None
     banner = await picconvert(banner_filename) if os.path.exists(banner_filename) else None
@@ -195,7 +195,7 @@ async def importprofile(ctx, *, name: str):
 
 @Repent.command(description=f"Lists all saved profiles. \nUsage: {config_get('prefix')}listprofiles", help="account")
 async def listprofiles(ctx):
-    directory = "Data/Profiles/"
+    directory = "data/profiles/"
     profile_files = glob.glob(os.path.join(directory, "*.profile"))
     profile_files = [file for file in profile_files if os.path.isfile(file)]
     profile_files = [os.path.basename(file) for file in profile_files]
@@ -204,7 +204,7 @@ async def listprofiles(ctx):
 
 @Repent.command(description=f"Deletes a saved profile. \nUsage: {config_get('prefix')}delprofile <name of profile>", help="account")
 async def delprofile(ctx, name):
-    directory = "Data/Profiles/"
+    directory = "data/profiles/"
     namee = f"{name}.profile"
     profile_path = os.path.join(directory, namee)
     if os.path.exists(profile_path):
@@ -220,11 +220,11 @@ async def delprofile(ctx, name):
 
 @Repent.command(description=f"Animates your Discord nickname. \nUsage: {config_get('prefix')}animnick <nickname>\n\nThis is also used as a two way toggle, to turn this off, do the command without any args.", help="account")
 async def animnick(ctx, *, text=None):    
-    with open('Data/Settings/Configs/Settings.json', 'r') as file:
+    with open('data/settings/configs/settings.json', 'r') as file:
         settings_data = json.load(file)
     if 'animnick' not in settings_data:
         settings_data['animnick'] = False
-        with open('Data/Settings/Configs/Settings.json', 'w') as file:
+        with open('data/settings/configs/settings.json', 'w') as file:
             json.dump(settings_data, file, indent=4)
     if setting_get('animnick') == True:
         setting_edit('animnick', False)
@@ -342,8 +342,8 @@ async def barcodenickname(ctx):
 @Repent.command(description=f"Backups all discord servers you are in to a txt file. \nUsage: {config_get('prefix')}backupservers", help="account")
 async def backupservers(ctx):    
     token = config_get('token')  
-    if os.path.exists('Data/Backups/Servers.txt'):
-        os.remove('Data/Backups/Servers.txt')
+    if os.path.exists('data/backups/Servers.txt'):
+        os.remove('data/backups/Servers.txt')
     
     headers = {"authorization": token}
     payload = {"max_age": "0", "max_uses": "0", "temporary": False}
@@ -377,7 +377,7 @@ async def backupservers(ctx):
         elif invite.status_code == 200:
             invite_url = f'https://discord.gg/{invite.json()["code"]}'
             print(f'{Fore.GREEN}Invite SUCCESS! For {server.name}')
-            with open('Data/Backups/Servers.txt', "a+", encoding="UTF-8") as f:
+            with open('data/backups/Servers.txt', "a+", encoding="UTF-8") as f:
                 f.write(f'\n{server.name} || {invite_url}')
         elif invite.status_code == 429:
             retry_after = invite.json().get('retry_after', 1)
@@ -386,7 +386,7 @@ async def backupservers(ctx):
             if invite.status_code == 200:
                 invite_url = f'https://discord.gg/{invite.json()["code"]}'
                 print(f'{Fore.GREEN}Invite SUCCESS! For {server.name}')
-                with open('Data/Backups/Servers.txt', "a+", encoding="UTF-8") as f:
+                with open('data/backups/Servers.txt', "a+", encoding="UTF-8") as f:
                     f.write(f'\n{server.name} || {invite_url}')
         elif invite.status_code == 400:
             invite_url_response = (await arequesters.get(f"https://discord.com/api/guilds/{server.id}/vanity-url", headers=headers))
@@ -394,7 +394,7 @@ async def backupservers(ctx):
                 print(f'{Fore.YELLOW}Invite Creation Failed (Maximum server invites reached) for {server.name}. Skipping...')
                 continue
             invite_url = invite_url_response.json().get('code', 'No Vanity URL')
-            with open('Data/Backups/Servers.txt', "a+", encoding="UTF-8") as f:
+            with open('data/backups/Servers.txt', "a+", encoding="UTF-8") as f:
                 f.write(f'\n{server.name} || {invite_url}')
         else:
             print(invite.text)
@@ -412,7 +412,7 @@ async def backupservers(ctx):
 @Repent.command(description=f"Joins all the servers in the txt file created by the backupservers cmd. \nUsage: {config_get('prefix')}recoverservers", help="account")
 async def recoverservers(ctx):
     token = config_get('token')
-    servers = open('Data/Backups/Servers.txt', 'r', encoding='utf-8')
+    servers = open('data/backups/Servers.txt', 'r', encoding='utf-8')
     invites = []
     for line in servers:
         data = line.split(" || ")
@@ -432,7 +432,7 @@ async def backupfriends(ctx):
     token = config_get('token')  
     headers = {'authorization': token}
     friends = (await arequesters.get('https://discord.com/api/v9/users/@me/relationships', headers=headers))
-    with open('Data/Backups/Discord Friends.txt', 'w', encoding='UTF-8') as f:
+    with open('data/backups/Discord Friends.txt', 'w', encoding='UTF-8') as f:
         saved_friends = 0
         for friend in friends.json():
             username = 'Username: %s#%s | User ID: %s\n' % (friend['user']['username'], friend['user']['discriminator'], friend['id'])

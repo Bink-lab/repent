@@ -141,7 +141,7 @@ async def exportbans(ctx):
     for entry in bans:
         ban_info += f"{entry.user} - {entry.reason}\n"
     if ban_info:
-        with open(f"Data//Dumps//Ban Lists//{ctx.guild.name}'s ban list.txt", "w", encoding="utf-8") as file:
+        with open(f"data/dumps/Ban Lists/{ctx.guild.name}'s ban list.txt", "w", encoding="utf-8") as file:
             file.write(ban_info)
         heading = "Export Bans"
         body = f"Ban information saved to '{ctx.guild.name}'s ban list.txt"
