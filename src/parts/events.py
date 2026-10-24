@@ -1397,24 +1397,34 @@ async def universalgiveawaybot(data):
 
 _cached_xsuper = None
 
+def _fetch_build_number():
+    # discord.sale is third-party and regularly slow/unreachable; never let it crash
+    # every Discord request or block startup for the full socket timeout.
+    try:
+        data = httpx.get("https://discord.sale/api/builds", timeout=5).json()
+        if isinstance(data, dict) and data.get("build_number"):
+            return data["build_number"]
+    except Exception:
+        pass
+    try:
+        return get_live_build_number()
+    except Exception:
+        return None
+
 def getxsuper():
             global _cached_xsuper
             if _cached_xsuper:
                 return _cached_xsuper
-            os = platform.system()
+            os_name = platform.system()
             browser = "Discord Client"
-            osarch = platform.architecture()[0]
-            if osarch == '64bit':
-                osarch = 'x64'
-            elif osarch == '32bit':
-                osarch = 'x32'
             current_locale = locale.getdefaultlocale()[0]
-            syslocale = current_locale.replace("_", "-")
+            try:
+                syslocale = current_locale.replace("_", "-")
+            except Exception:
+                syslocale = "en-GB"
             osver = platform.version()
-            resp = requesters.get("https://discord.sale/api/builds")
-            data = resp.json()
-            cbuild = data.get("build_number")
-            x = {"os":os,"build_number":cbuild, "os_version":osver, "system_locale":syslocale,"browser":browser}
+            cbuild = _fetch_build_number()
+            x = {"os":os_name,"build_number":cbuild, "os_version":osver, "system_locale":syslocale,"browser":browser}
             json_str = json.dumps(x)
             xsuper = base64.b64encode(json_str.encode()).decode()
             _cached_xsuper = xsuper
