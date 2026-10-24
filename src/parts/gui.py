@@ -651,10 +651,9 @@ def run_web_gui_server():
     flask_cli.show_server_banner = lambda *args, **kwargs: None
 
     app = Flask(__name__)
-    port = 8080
     print(f"[INFO] assets exists: {assets_dir.exists()}")
     api = API()
-    app.before_request(lambda: reject_foreign_request(request))
+    app.before_request(lambda: web_request_guard(request))
 
     @app.route('/')
     def index():
@@ -710,10 +709,13 @@ def run_web_gui_server():
             print(f"[ERROR] RPC {method_name} failed: {e}")
             return jsonify({"error": str(e)}), 500
 
-    print(f"[INFO] starting server on http://localhost:{port}")
-    time.sleep(1)
-    webbrowser.open(f"http://localhost:{port}")
-    app.run(host='localhost', port=port, debug=False, use_reloader=False, threaded=True)
+    print_web_urls("dashboard")
+    if not SETUP_WAS_SHOWN:
+        def _open_later():
+            time.sleep(1)
+            open_web_browser(f"http://localhost:{WEB_PORT}")
+        threading.Thread(target=_open_later, daemon=True).start()
+    app.run(host=WEB_HOST, port=WEB_PORT, debug=False, use_reloader=False, threaded=True)
 
 def runbot():
     global BOOT_STAGE

@@ -46,6 +46,9 @@ from pystyle import  Colors, Colorate
 from notifypy import Notify
 import subprocess
 import sys
+import socket
+import ipaddress
+import hmac
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.backends import default_backend
@@ -397,16 +400,122 @@ def filesafe(filename):
     filename = filename.rstrip('. ')
     return filename
 
-LOCAL_HOSTS = {"localhost:8080", "127.0.0.1:8080"}
+def _env_flag(name):
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "on")
 
-def reject_foreign_request(request):
+def get_web_settings():
+    # Both the first-run setup page and the dashboard use this. Default is loopback-only
+    # on 7320; set REPENT_REMOTE=1 (or REPENT_HOST=0.0.0.0) to reach them over LAN/Tailscale.
+    host = os.environ.get("REPENT_HOST", "").strip()
+    if not host:
+        host = "0.0.0.0" if _env_flag("REPENT_REMOTE") else "127.0.0.1"
+    try:
+        port = int(os.environ.get("REPENT_PORT", "7320"))
+    except (TypeError, ValueError):
+        port = 7320
+    if not 1 <= port <= 65535:
+        port = 7320
+    return host, port
+
+WEB_HOST, WEB_PORT = get_web_settings()
+SETUP_WAS_SHOWN = False
+
+def is_loopback_host(host):
+    return str(host).strip().lower() in ("localhost", "127.0.0.1", "::1", "[::1]")
+
+def list_web_urls():
+    urls = []
+    try:
+        interfaces = psutil.net_if_addrs()
+        for if_name, addrs in interfaces.items():
+            for addr in addrs:
+                if addr.family != socket.AF_INET:
+                    continue
+                if addr.address.startswith("127."):
+                    continue
+                suffix = " (tailscale)" if "tailscale" in if_name.lower() else ""
+                urls.append((0 if suffix else 1, f"http://{addr.address}:{WEB_PORT}{suffix}"))
+    except Exception:
+        pass
+    urls.sort(key=lambda entry: entry[0])
+    return [f"http://localhost:{WEB_PORT}"] + [url for _, url in urls]
+
+def print_web_urls(label):
+    if is_loopback_host(WEB_HOST):
+        print(f"[INFO] {label} on http://localhost:{WEB_PORT}")
+        print(f"[INFO] remote access: set REPENT_REMOTE=1, then open http://<machine-ip>:{WEB_PORT}")
+        return
+    print(f"[INFO] {label} on:")
+    for url in list_web_urls():
+        print(f"[INFO]   {url}")
+
+def open_web_browser(url):
+    if _env_flag("REPENT_NO_BROWSER"):
+        return
+    try:
+        webbrowser.open(url)
+    except Exception:
+        pass
+
+ALLOWED_WEB_HOSTS = {"localhost", "127.0.0.1", "::1"}
+ALLOWED_WEB_SUFFIXES = (".ts.net",)
+try:
+    _hostname = socket.gethostname().strip().lower()
+    if _hostname:
+        ALLOWED_WEB_HOSTS.add(_hostname)
+        ALLOWED_WEB_HOSTS.add(_hostname + ".local")
+except Exception:
+    pass
+for _entry in re.split(r"[,\s]+", os.environ.get("REPENT_ALLOWED_HOSTS", "")):
+    if _entry.strip():
+        ALLOWED_WEB_HOSTS.add(_entry.strip().lower())
+
+def _host_name(host_header):
+    host = str(host_header or "").strip().lower()
+    if host.startswith("["):
+        name = host[1:host.find("]")] if "]" in host else host
+    elif host.count(":") == 1:
+        name = host.rsplit(":", 1)[0]
+    else:
+        name = host
+    return name.rstrip(".")
+
+def host_header_allowed(host_header):
+    name = _host_name(host_header)
+    if not name:
+        return False
+    if name in ALLOWED_WEB_HOSTS:
+        return True
+    if any(name.endswith(suffix) for suffix in ALLOWED_WEB_SUFFIXES):
+        return True
+    # Raw IPs are safe: a DNS-rebinding attack must put its own hostname in the Host header.
+    try:
+        ipaddress.ip_address(name)
+        return True
+    except ValueError:
+        return False
+
+def require_web_password(request):
+    password = os.environ.get("REPENT_PASSWORD", "")
+    if not password:
+        return None
+    auth = request.authorization
+    if auth and auth.username == "repent" and hmac.compare_digest(
+        str(auth.password or "").encode("utf-8"), password.encode("utf-8")
+    ):
+        return None
+    from flask import Response
+    return Response("Authentication required", 401, {"WWW-Authenticate": 'Basic realm="repent"'})
+
+def web_request_guard(request):
     # Host check blocks DNS rebinding; requiring a custom header on POST forces a CORS
-    # preflight that this server never approves, so other websites can't call the API
-    if request.host not in LOCAL_HOSTS:
+    # preflight that this server never approves, so other websites can't call the API.
+    # REPENT_PASSWORD adds optional HTTP Basic auth for remote/tailnet use.
+    if not host_header_allowed(request.host):
         return "Forbidden", 403
     if request.method == "POST" and request.headers.get("X-Repent-Client") != "1":
         return "Forbidden", 403
-    return None
+    return require_web_password(request)
 
 SAFE_NAME_RE = re.compile(r"[A-Za-z0-9 _.-]{1,64}")
 
@@ -1991,9 +2100,19 @@ async function finishSetup() {
             <div class="done-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             <div class="eyebrow">DONE</div>
             <h2>Setup complete</h2>
-            <p class="lead">Starting repent — the dashboard opens in a new tab. You can close this one.</p>
+            <p class="lead" id="done-lead">Starting repent — taking you to the dashboard…</p>
         </div>`;
-    setTimeout(() => { window.close(); }, 1000);
+    // The dashboard takes over this same port. Poll until it answers, then follow it,
+    // so remote/VPS setups don't depend on a browser opening on the server machine.
+    for (let i = 0; i < 120; i++) {
+        try {
+            const resp = await fetch('/api/status', {cache: 'no-store'});
+            if (resp.ok) { location.href = '/'; return; }
+        } catch (e) {}
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    document.getElementById('done-lead').textContent =
+        'Setup is saved, but the dashboard did not come up. Check the console, then reload this page.';
 }
 
 renderStep();
@@ -2004,9 +2123,10 @@ def run_web_setup(config_data, groups):
     from flask import Flask, request, jsonify
     from werkzeug.serving import make_server
 
+    global SETUP_WAS_SHOWN
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app = Flask(__name__)
-    app.before_request(lambda: reject_foreign_request(request))
+    app.before_request(lambda: web_request_guard(request))
     done_event = threading.Event()
 
     groups_json = json.dumps([
@@ -2051,13 +2171,15 @@ def run_web_setup(config_data, groups):
         done_event.set()
         return jsonify({"ok": True})
 
-    httpd = make_server('localhost', 8080, app)
+    httpd = make_server(WEB_HOST, WEB_PORT, app)
     server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     server_thread.start()
     print("[INFO] first-run setup required!")
+    print_web_urls("setup page")
     time.sleep(0.5)
-    webbrowser.open('http://localhost:8080')
+    open_web_browser(f'http://localhost:{WEB_PORT}')
     done_event.wait()
+    SETUP_WAS_SHOWN = True
     httpd.shutdown()
     server_thread.join(timeout=5)
     print("[INFO] setup completed,starting repent!")
