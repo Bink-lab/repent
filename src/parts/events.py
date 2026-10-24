@@ -629,7 +629,7 @@ async def subscringedms(ws):
 
 @Repent.event
 async def on_connect():
-    global BOOT_STAGE
+    global BOOT_STAGE, BOT_READY
     BOOT_STAGE = "Connected to Discord, syncing account data"
     try:
         ws = get_websocket()
@@ -647,8 +647,6 @@ async def on_connect():
         load_custom_aliases()
         notif("Repent Has Loaded!")
         BOOT_STAGE = "Ready"
-        global BOT_READY
-        BOT_READY = True
         non_custom_cmds, custom_cmds = commandrecs()
         commands_data = json.dumps({
             'customCmds': custom_cmds,
@@ -656,6 +654,9 @@ async def on_connect():
         })
     except Exception as e:
         print(e)
+    finally:
+        # A cosmetic failure above must not leave the dashboard polling forever.
+        BOT_READY = True
 fetchedactivity = ""
 lastsesh = ""
 @Repent.listen('on_socket_raw_receive')

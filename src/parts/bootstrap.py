@@ -307,7 +307,7 @@ _CONSOLE_LEVEL_STYLE = {
     'DEBUG': (Fore.LIGHTMAGENTA_EX, '~'),
 }
 
-def print(message):
+def print(message, end="\n"):
     text = str(message)
     timestamp = f"{Fore.LIGHTBLACK_EX}[{datetime.now().strftime('%H:%M:%S')}]{Style.RESET_ALL}"
     if not text.startswith('\x1b['):
@@ -321,9 +321,9 @@ def print(message):
             text = f"{color}[{icon}] {level}{Style.RESET_ALL} {rest}"
     formatted = f"{timestamp} {text}"
     try:
-        builtins.print(formatted)
+        builtins.print(formatted, end=end)
     except UnicodeEncodeError:
-        builtins.print(formatted.encode('utf-8', errors='replace').decode('utf-8', errors='replace'))
+        builtins.print(formatted.encode('utf-8', errors='replace').decode('utf-8', errors='replace'), end=end)
     console_push("print", formatted)
 
 def tokenvalid(token):
@@ -698,7 +698,7 @@ def windowname(commandsdone):
             pass
     elif os.name == "posix":
         title = f"repent.wtf  |  cmds used: {commandsdone}  |  guilds: {len(Repent.guilds)}  |  prefix: {config_get('prefix')}"
-        print(f"\033]0;{title}\007", end="", flush=True)
+        builtins.print(f"\033]0;{title}\007", end="", flush=True)
 
 def get_time():
     t = time.localtime()
