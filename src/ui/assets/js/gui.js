@@ -1067,20 +1067,25 @@
         }
 
         const embedElement = document.querySelector('.embedpreview');
-        const pickr = Pickr.create({
+        // pickr comes from a CDN and is optional; a blocked CDN must not break the dashboard.
+        const pickr = typeof Pickr === 'undefined' ? null : Pickr.create({
             el: '.color-picker', theme: 'nano',
             components: { hue: true, interaction: { hex: false, input: true } }, background: '#111115'
         });
-        pickr.on('change', (color) => {
-            pickr.applyColor(color);
-            if(embedElement) embedElement.style.borderLeftColor = color.toHEXA().toString();
-        });
+        if (pickr) {
+            pickr.on('change', (color) => {
+                pickr.applyColor(color);
+                if(embedElement) embedElement.style.borderLeftColor = color.toHEXA().toString();
+            });
+        }
         function setColor(hex) {
             hex = hex.startsWith('#') ? hex.slice(1) : hex;
             if(!/^([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex)) return;
-            pickr.setColor('#'+hex);
+            if (pickr) {
+                pickr.setColor('#'+hex);
+                pickr.applyColor();
+            }
             if(embedElement) embedElement.style.borderLeftColor = '#'+hex;
-            pickr.applyColor();
         }
 
         let rpcStartTime = Date.now();
@@ -1498,7 +1503,7 @@ async function refreshMusicTile() {
     }
     tile.classList.remove('idle');
     title.textContent = state.title || 'Unknown track';
-    sub.textContent = state.local ? 'on this PC's speakers' : state.guild ? `in ${state.guild}` : 'via ytqueue';
+    sub.textContent = state.local ? "on this PC's speakers" : state.guild ? `in ${state.guild}` : 'via ytqueue';
     vc.textContent = state.channel ? `vc #${state.channel}` : '';
     const pct = state.duration ? Math.min(100, (state.elapsed / state.duration) * 100) : 0;
     document.getElementById('ov-music-bar').style.width = pct + '%';
@@ -1602,5 +1607,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     render(STAGES[0].label, false);
+    // Hard fallback: never leave the loading screen up forever if a status request hangs.
+    setTimeout(() => reveal(true), MAX_WAIT_MS + 1000);
     pollStatus();
 });

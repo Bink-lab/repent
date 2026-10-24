@@ -683,12 +683,20 @@ def setting_edit(data, new_value):
         json.dump(settings, f, indent=4)
 
 def notif(message):
-    notification = Notify()
-    notification.application_name = "repent.wtf"
-    notification.title = f"repent"
-    notification.message = message
-    notification.icon = str(ICON_FILE)
-    notification.send()
+    # Desktop notifications are best-effort. On headless Linux (VPS) notifypy can
+    # block for a long time talking to DBus, so never run it on the caller's thread.
+    def _send():
+        try:
+            notification = Notify()
+            notification.application_name = "repent.wtf"
+            notification.title = "repent"
+            notification.message = message
+            if ICON_FILE.exists():
+                notification.icon = str(ICON_FILE)
+            notification.send()
+        except Exception:
+            pass
+    threading.Thread(target=_send, daemon=True).start()
 
 def windowname(commandsdone):
     if os.name == "nt" and HAS_WINDOWS:

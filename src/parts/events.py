@@ -643,10 +643,13 @@ async def on_connect():
         BOOT_STAGE = "Building terminal and loading commands"
         terminalui()
         customcmds()
-        windowname(0)
         load_custom_aliases()
-        notif("Repent Has Loaded!")
+        # Mark ready before anything cosmetic (window title, desktop notification)
+        # so a slow/hanging notification can never keep the dashboard on "Starting up".
         BOOT_STAGE = "Ready"
+        BOT_READY = True
+        windowname(0)
+        notif("Repent Has Loaded!")
         non_custom_cmds, custom_cmds = commandrecs()
         commands_data = json.dumps({
             'customCmds': custom_cmds,
